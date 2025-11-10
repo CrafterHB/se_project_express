@@ -1,10 +1,12 @@
-const express = require("express");
-const app = express();
-const mainRouter = require("./routes/index");
-
 const mongoose = require("mongoose");
 
-const { PORT = 3001 } = process.env; //If there is a port property in process.env use it, if not use 3001
+const express = require("express");
+
+const app = express();
+
+const mainRouter = require("./routes/index");
+
+const { PORT = 3001 } = process.env;
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")

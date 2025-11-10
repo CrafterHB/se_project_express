@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(value) {
-        //Value is the value that is passed from the user
         return validator.isURL(value);
       },
       message: "You must enter a valid URL",
