@@ -5,11 +5,11 @@ const express = require("express");
 const app = express();
 
 const mainRouter = require("./routes/index");
-
+const cors = require("cors");
 const { PORT = 3001 } = process.env;
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/wtwr_db")
+  .connect("mongodb+srv://chase:root@cluster0.y7sqoen.mongodb.net/")
   .then(() => {
     console.log("Conneted to DB");
   })
@@ -17,6 +17,7 @@ mongoose
 
 app.use(express.json());
 app.use("/", mainRouter);
+app.use(cors());
 
 app.listen(PORT, () => {
   console.log("Listening on port 3001");

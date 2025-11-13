@@ -4,7 +4,13 @@ const userRouter = require("./users");
 
 const clothingItemRouter = require("./clothingItems");
 
-router.use("/users", userRouter);
-router.use("/items", clothingItemRouter);
+const { login, createUser } = require("../controllers/users");
+const auth = require("../middleware/auth");
 
+router.use("/items", clothingItemRouter);
+router.post("/signin", login);
+router.post("/signup", createUser);
+
+router.use(auth); //everything below needs authorization
+router.use("/:users", userRouter);
 module.exports = router;
