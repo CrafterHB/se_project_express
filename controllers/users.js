@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
 const auth = require("../middleware/auth");
+const { getStatusByName } = require("../utils/errors");
 
 const getUsers = (req, res) => {
   User.find({})
@@ -33,12 +34,18 @@ const createUser = (req, res) => {
         }
 
         if (err.name === "ConflictError") {
-          return res.status(409).send({ message: err.message });
+          return res
+            .status(getStatusByName(err.name))
+            .send({ message: err.message });
         }
         if (err.name === "ValidationError") {
-          return res.status(400).send({ message: err.message });
+          return res
+            .status(getStatusByName(err.name))
+            .send({ message: err.message });
         }
-        return res.status(500).send({ message: err.message });
+        return res
+          .status(getStatusByName(err.name))
+          .send({ message: err.message });
       });
   });
 };
@@ -51,11 +58,17 @@ const getUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(400).send({ message: err.message });
+        return res
+          .status(getStatusByName(err.name))
+          .send({ message: err.message });
       } else if (err.name === "CastError") {
-        return res.status(400).send({ message: err.message });
+        return res
+          .status(getStatusByName(err.name))
+          .send({ message: err.message });
       }
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(getStatusByName(err.name))
+        .send({ message: err.message });
     });
 };
 
@@ -90,7 +103,7 @@ const login = (req, res) => {
           .status(400)
           .send({ message: "Incorrect email or password." });
       }
-      return res.status(400).send({ message: err });
+      return res.status(getStatusByName(err.name)).send({ message: err });
     });
 };
 
@@ -110,9 +123,13 @@ const getCurrentUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return res.status(400).send({ message: "Invalid user id" });
+        return res
+          .status(getStatusByName(err.name))
+          .send({ message: "Invalid user id" });
       }
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(getStatusByName(err.name))
+        .send({ message: err.message });
     });
 };
 
@@ -138,10 +155,16 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.code === 11000)
-        return res.status(409).send({ message: "Email already registered" });
+        return res
+          .status(getStatusByName(err.name))
+          .send({ message: "Email already registered" });
       if (err.name === "ValidationError" || err.name === "CastError")
-        return res.status(400).send({ message: err.message });
-      return res.status(500).send({ message: err.message });
+        return res
+          .status(getStatusByName(err.name))
+          .send({ message: err.message });
+      return res
+        .status(getStatusByName(err.name))
+        .send({ message: err.message });
     });
 };
 

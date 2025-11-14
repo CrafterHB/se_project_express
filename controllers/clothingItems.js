@@ -1,4 +1,5 @@
 const clothingItem = require("../models/clothingItem");
+const { getStatusByName } = require("../utils/errors");
 
 const getItems = (req, res) => {
   clothingItem
@@ -27,10 +28,9 @@ const createItem = (req, res) => {
     .then((item) => res.status(201).send(item))
     .catch((err) => {
       console.error(err);
-      if (err.name === "ValidationError") {
-        return res.status(400).send({ message: err.message });
-      }
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(getStatusByName(err.name))
+        .send({ message: err.message });
     });
 };
 
@@ -55,12 +55,18 @@ const deleteItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "Item not found" });
+        return res
+          .status(getStatusByName(err.name))
+          .send({ message: "Item not found" });
       }
       if (err.name === "CastError") {
-        return res.status(400).send({ message: err.message });
+        return res
+          .status(getStatusByName(err.name))
+          .send({ message: err.message });
       }
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(getStatusByName(err.name))
+        .send({ message: err.message });
     });
 };
 
@@ -79,8 +85,12 @@ const likeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError")
-        return res.status(400).send({ message: err.message });
-      return res.status(500).send({ message: err.message });
+        return res
+          .status(getStatusByName(err.name))
+          .send({ message: err.message });
+      return res
+        .status(getStatusByName(err.name))
+        .send({ message: err.message });
     });
 };
 
@@ -99,8 +109,12 @@ const unlikeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError")
-        return res.status(400).send({ message: err.message });
-      return res.status(500).send({ message: err.message });
+        return res
+          .status(getStatusByName(err.name))
+          .send({ message: err.message });
+      return res
+        .status(getStatusByName(err.name))
+        .send({ message: err.message });
     });
 };
 
