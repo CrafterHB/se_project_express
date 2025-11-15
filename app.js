@@ -4,12 +4,14 @@ const express = require("express");
 
 const app = express();
 
-const mainRouter = require("./routes/index");
 const cors = require("cors");
+
+const mainRouter = require("./routes/index");
+
 const { PORT = 3001 } = process.env;
 
 mongoose
-  .connect("mongodb+srv://chase:root@cluster0.y7sqoen.mongodb.net/")
+  .connect("mongodb://localhost:27017/")
   .then(() => {
     console.log("Conneted to DB");
   })

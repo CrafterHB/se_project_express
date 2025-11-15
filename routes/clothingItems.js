@@ -4,6 +4,8 @@ const {
   getItems,
   createItem,
   deleteItem,
+  likeItem,
+  unlikeItem,
 } = require("../controllers/clothingItems");
 
 router.get("/", getItems);
@@ -11,11 +13,7 @@ router.get("/", getItems);
 router.use(auth);
 router.post("/", createItem);
 router.delete("/:itemId", deleteItem);
-router.put("/:itemId/likes", (req, res, next) =>
-  require("../controllers/clothingItems").likeItem(req, res, next)
-);
-router.delete("/:itemId/likes", (req, res, next) =>
-  require("../controllers/clothingItems").unlikeItem(req, res, next)
-);
+router.put("/:itemId/likes", likeItem);
+router.delete("/:itemId/likes", unlikeItem);
 
 module.exports = router; // just export router and all routes declared will be exported with it.

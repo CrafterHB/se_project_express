@@ -23,7 +23,7 @@ const createItem = (req, res) => {
       .status(400)
       .send({ message: "name, imageUrl and weather are required" });
 
-  clothingItem
+  return clothingItem
     .create({ name, imageUrl, weather, owner })
     .then((item) => res.status(201).send(item))
     .catch((err) => {
@@ -41,7 +41,7 @@ const deleteItem = (req, res) => {
   if (!ownerId)
     return res.status(401).send({ message: "Authorization required" });
 
-  clothingItem
+  return clothingItem
     .findById(itemId)
     .orFail()
     .then((item) => {
@@ -76,7 +76,7 @@ const likeItem = (req, res) => {
   if (!userId)
     return res.status(401).send({ message: "Authorization required" });
 
-  clothingItem
+  return clothingItem
     .findByIdAndUpdate(itemId, { $addToSet: { likes: userId } }, { new: true })
     .then((item) => {
       if (!item) return res.status(404).send({ message: "Item not found" });
@@ -100,7 +100,7 @@ const unlikeItem = (req, res) => {
   if (!userId)
     return res.status(401).send({ message: "Authorization required" });
 
-  clothingItem
+  return clothingItem
     .findByIdAndUpdate(itemId, { $pull: { likes: userId } }, { new: true })
     .then((item) => {
       if (!item) return res.status(404).send({ message: "Item not found" });

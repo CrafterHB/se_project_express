@@ -11,6 +11,6 @@ router.use("/items", clothingItemRouter);
 router.post("/signin", login);
 router.post("/signup", createUser);
 
-router.use(auth); //everything below needs authorization
+router.use(auth);
 router.use("/:users", userRouter);
 module.exports = router;

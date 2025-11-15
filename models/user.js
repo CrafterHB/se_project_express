@@ -43,33 +43,27 @@ userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email })
     .then((user) => {
       if (!user) {
-        return Promise.reject({ message: "Incorrect email or password." });
+        return Promise.reject(Error("Incorrect email or password."));
       }
 
-      if (password === null) password = "wasd";
-
-      this.findOne({ email })
+      return this.findOne({ email })
         .select("+password")
-        .then((user) => {
-          return bcrypt
+        .then(() => {
+          bcrypt
             .compare(password, user.password)
             .then((matched) => {
               if (!matched) {
-                return Promise.reject({
-                  message: "Incorrect email or password.",
-                });
+                return Promise.reject(Error("Incorrect email or password."));
               }
+
+              return matched;
             })
             .catch((err) => {
-              user = { message: "Incorrect password." };
-              return Promise.reject({
-                message: err,
-              });
+              const msg = `Error: ${err}`;
+              return Promise.reject(Error(msg));
             });
         })
         .catch((err) => console.log(err));
-
-      return user;
     })
     .catch((err) => console.log(err));
 };

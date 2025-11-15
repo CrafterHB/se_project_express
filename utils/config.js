@@ -1,3 +1,3 @@
-export const JWT_SECRET = "Placeholder";
+const JWT_SECRET = "Placeholder";
 
-//npm install dotenv
+export default JWT_SECRET;

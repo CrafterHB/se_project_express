@@ -1,14 +1,13 @@
-const { use } = require("react");
-const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
-const auth = require("../middleware/auth");
 const { getStatusByName } = require("../utils/errors");
+const User = require("../models/user");
 
 const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(200).send(users))
+  const status = 200;
+  return User.find({})
+    .then((users) => res.status(status).send(users))
     .catch((err) => {
       console.error(err);
       return res.status(500).send({ message: err.message });
@@ -17,16 +16,14 @@ const getUsers = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
-  bcrypt.hash(password, 10).then((hash) => {
+  return bcrypt.hash(password, 10).then((hash) => {
     User.create({ name, avatar, email, password: hash })
       .then((user) => {
         const u = user.toObject();
         delete u.password;
         return res.status(201).send(u);
-        //res.status(201).send(user);
       })
       .catch((err) => {
-        //console.error(err);
         if (err.code === 11000) {
           return res
             .status(409)
@@ -52,7 +49,7 @@ const createUser = (req, res) => {
 
 const getUser = (req, res) => {
   const { userId } = req.user._id;
-  User.findById(userId)
+  return User.findById(userId)
     .then((user) => res.status(200).send(user))
     .orFail()
     .catch((err) => {
@@ -61,7 +58,8 @@ const getUser = (req, res) => {
         return res
           .status(getStatusByName(err.name))
           .send({ message: err.message });
-      } else if (err.name === "CastError") {
+      }
+      if (err.name === "CastError") {
         return res
           .status(getStatusByName(err.name))
           .send({ message: err.message });
@@ -87,13 +85,13 @@ const login = (req, res) => {
       .send({ message: "You cannot leave the email field empty." });
   }
 
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
 
-      return res.status(200).send({ token: token });
+      return res.status(200).send({ token });
     })
     .catch((err) => {
       if (
@@ -113,7 +111,7 @@ const getCurrentUser = (req, res) => {
     return res.status(401).send({ message: "Authorization required" });
   }
 
-  User.findById(userId)
+  return User.findById(userId)
     .then((user) => {
       if (!user) {
         return res.status(404).send({ message: "User not found" });
@@ -144,7 +142,7 @@ const updateUser = (req, res) => {
   if (avatar !== undefined) update.avatar = avatar;
   if (email !== undefined) update.email = String(email).trim().toLowerCase();
 
-  User.findByIdAndUpdate(userId, update, {
+  return User.findByIdAndUpdate(userId, update, {
     new: true,
     runValidators: true,
     context: "query",
