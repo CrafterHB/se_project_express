@@ -1,3 +1,3 @@
-const JWT_SECRET = "Placeholder";
+export const JWT_SECRET = "Placeholder";
 
 export default JWT_SECRET;
