@@ -22,7 +22,11 @@ const createUser = (req, res) => {
       .then((user) => {
         const u = user.toObject();
         delete u.password;
-        return res.status(201).send(u);
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: "7d",
+        });
+
+        return res.status(201).send({ token, user: u });
       })
       .catch((err) => {
         if (err.code === 11000) {

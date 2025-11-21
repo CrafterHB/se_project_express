@@ -13,8 +13,9 @@ const getItems = (req, res) => {
 };
 
 const createItem = (req, res) => {
-  const { name, imageUrl, weather } = req.body;
-  const owner = req.user && req.user._id;
+  const { name, link, weather } = req.body;
+  const imageUrl = link;
+  const owner = req.user && (req.user._id || req.user.id);
 
   if (!owner)
     return res.status(401).send({ message: "Authorization required" });
@@ -35,7 +36,7 @@ const createItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  const ownerId = req.user && req.user._id;
+  const ownerId = req.user && (req.user._id || req.user.id);
   const { itemId } = req.params;
 
   if (!ownerId)
