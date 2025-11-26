@@ -4,10 +4,24 @@ const { JWT_SECRET } = require("../utils/config");
 const { getStatusByName } = require("../utils/errors");
 const User = require("../models/user");
 
+const {
+  NotFoundError,
+  BadRequestError,
+  ForbiddenError,
+  UnauthorizedError,
+  ConflictError,
+} = require("../middleware/error-handler");
+
 const getUsers = (req, res) => {
   const status = 200;
   return User.find({})
-    .then((users) => res.status(status).send(users))
+    .then((users) => {
+      if (!users) {
+        return new NotFoundError("No users found.");
+      }
+
+      res.status(status).send(users);
+    })
     .catch((err) => {
       console.error(err);
       return res.status(500).send({ message: err.message });
@@ -20,6 +34,10 @@ const createUser = (req, res) => {
   return bcrypt.hash(password, 10).then((hash) => {
     User.create({ name, avatar, email, password: hash })
       .then((user) => {
+        if (!user) {
+          return new NotFoundError("User not found.");
+        }
+
         const u = user.toObject();
         delete u.password;
         const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
@@ -36,14 +54,10 @@ const createUser = (req, res) => {
         }
 
         if (err.name === "ConflictError") {
-          return res
-            .status(getStatusByName(err.name))
-            .send({ message: err.message });
+          return new ConflictError("User already exists.");
         }
         if (err.name === "ValidationError") {
-          return res
-            .status(getStatusByName(err.name))
-            .send({ message: err.message });
+          return new UnauthorizedError("Not Authorized.");
         }
         return res
           .status(getStatusByName(err.name))
@@ -60,14 +74,10 @@ const getUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(getStatusByName(err.name))
-          .send({ message: err.message });
+        return new NotFoundError("User not found.");
       }
       if (err.name === "CastError") {
-        return res
-          .status(getStatusByName(err.name))
-          .send({ message: err.message });
+        return new BadRequestError("Bad Request (Cast Error)");
       }
       return res
         .status(getStatusByName(err.name))
@@ -102,9 +112,7 @@ const login = (req, res) => {
       if (
         err.message === "Cannot read properties of undefined (reading '_id')"
       ) {
-        return res
-          .status(400)
-          .send({ message: "Incorrect email or password." });
+        return new BadRequestError("Incorrect email or password.");
       }
       return res.status(getStatusByName(err.name)).send({ message: err });
     });
@@ -113,22 +121,20 @@ const login = (req, res) => {
 const getCurrentUser = (req, res) => {
   const userId = req.user && req.user._id;
   if (!userId) {
-    return res.status(401).send({ message: "Authorization required" });
+    throw new UnauthorizedError("Authorization Required.");
   }
 
   return User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "User not found" });
+        return new NotFoundError("User not found.");
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return res
-          .status(getStatusByName(err.name))
-          .send({ message: "Invalid user id" });
+        return new BadRequestError("Bad Request (Cast Error)");
       }
       return res
         .status(getStatusByName(err.name))
@@ -153,18 +159,14 @@ const updateUser = (req, res) => {
     context: "query",
   })
     .then((user) => {
-      if (!user) return res.status(404).send({ message: "User not found" });
+      if (!user) return new NotFoundError("User not found.");
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.code === 11000)
-        return res
-          .status(getStatusByName(err.name))
-          .send({ message: "Email already registered" });
+        return new ConflictError("Email is already registered.");
       if (err.name === "ValidationError" || err.name === "CastError")
-        return res
-          .status(getStatusByName(err.name))
-          .send({ message: err.message });
+        return new BadRequestError("Bad Request");
       return res
         .status(getStatusByName(err.name))
         .send({ message: err.message });

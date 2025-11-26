@@ -1,3 +1,9 @@
+const {
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+} = require("../middleware/error-handler");
 const clothingItem = require("../models/clothingItem");
 const { getStatusByName } = require("../utils/errors");
 
@@ -17,12 +23,9 @@ const createItem = (req, res) => {
   const imageUrl = link;
   const owner = req.user && (req.user._id || req.user.id);
 
-  if (!owner)
-    return res.status(401).send({ message: "Authorization required" });
+  if (!owner) return new UnauthorizedError("Authorization Required.");
   if (!name || !imageUrl || !weather)
-    return res
-      .status(400)
-      .send({ message: "name, imageUrl and weather are required" });
+    return new BadRequestError("Name, Image URL, and Weather are required.");
 
   return clothingItem
     .create({ name, imageUrl, weather, owner })
@@ -39,15 +42,14 @@ const deleteItem = (req, res) => {
   const ownerId = req.user && (req.user._id || req.user.id);
   const { itemId } = req.params;
 
-  if (!ownerId)
-    return res.status(401).send({ message: "Authorization required" });
+  if (!ownerId) return new UnauthorizedError("Authorization Required.");
 
   return clothingItem
     .findById(itemId)
     .orFail()
     .then((item) => {
       if (String(item.owner) !== String(ownerId)) {
-        return res.status(403).send({ message: "Forbidden: not the owner" });
+        return new ForbiddenError("User is not the owner of the item.");
       }
       return clothingItem
         .findByIdAndDelete(itemId)
@@ -56,14 +58,10 @@ const deleteItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(getStatusByName(err.name))
-          .send({ message: "Item not found" });
+        return new NotFoundError("Item not found.");
       }
       if (err.name === "CastError") {
-        return res
-          .status(getStatusByName(err.name))
-          .send({ message: err.message });
+        return new BadRequestError("Bad Request.");
       }
       return res
         .status(getStatusByName(err.name))
@@ -85,10 +83,7 @@ const likeItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "CastError")
-        return res
-          .status(getStatusByName(err.name))
-          .send({ message: err.message });
+      if (err.name === "CastError") return new BadRequestError("Bad Request.");
       return res
         .status(getStatusByName(err.name))
         .send({ message: err.message });
@@ -98,8 +93,7 @@ const likeItem = (req, res) => {
 const unlikeItem = (req, res) => {
   const userId = req.user && req.user._id;
   const { itemId } = req.params;
-  if (!userId)
-    return res.status(401).send({ message: "Authorization required" });
+  if (!userId) return new UnauthorizedError("Authorization Required.");
 
   return clothingItem
     .findByIdAndUpdate(itemId, { $pull: { likes: userId } }, { new: true })
@@ -109,10 +103,7 @@ const unlikeItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "CastError")
-        return res
-          .status(getStatusByName(err.name))
-          .send({ message: err.message });
+      if (err.name === "CastError") return new BadRequestError("Bad Request.");
       return res
         .status(getStatusByName(err.name))
         .send({ message: err.message });

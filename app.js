@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const mongoose = require("mongoose");
 
 const express = require("express");
@@ -7,6 +9,12 @@ const app = express();
 const cors = require("cors");
 
 const mainRouter = require("./routes/index");
+
+const errorHandler = require("./middleware/error-handler");
+
+const { requestLogger, errorLogger } = require("./middleware/logger");
+
+const { errors } = require("celebrate");
 
 const { PORT = 3001 } = process.env;
 
@@ -25,8 +33,13 @@ app.use(
 );
 
 app.use(express.json());
+app.use(requestLogger);
 app.use("/", mainRouter);
 app.use(cors());
+
+app.use(errorLogger);
+
+app.use(errors());
 
 app.listen(PORT, () => {
   console.log("Listening on port 3001");

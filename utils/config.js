@@ -1,3 +1,5 @@
-export const JWT_SECRET = "Placeholder";
+const { JWT_SECRET = "super_secret_password" } = process.env;
 
-export default JWT_SECRET;
+module.exports = {
+  JWT_SECRET,
+};
