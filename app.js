@@ -10,11 +10,12 @@ const cors = require("cors");
 
 const mainRouter = require("./routes/index");
 
-const errorHandler = require("./middleware/error-handler");
+const { errorHandler } = require("./middleware/error-handler");
 
 const { requestLogger, errorLogger } = require("./middleware/logger");
 
 const { errors } = require("celebrate");
+const { error } = require("winston");
 
 const { PORT = 3001 } = process.env;
 
@@ -42,6 +43,8 @@ app.use("/", mainRouter);
 app.use(cors());
 
 app.use(errorLogger);
+
+app.use(errorHandler);
 
 app.use(errors());
 
