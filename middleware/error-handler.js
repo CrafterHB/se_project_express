@@ -1,11 +1,11 @@
 const express = require("express");
 const app = express();
 
-const NotFoundError = require("../../errors/not-found-err.js");
-const BadRequestError = require("../../errors/bad-request-err.js");
-const ForbiddenError = require("../../errors/forbidden-err.js");
-const UnauthorizedError = require("../../errors/unauthorized-err.js");
-const ConflictError = require("../../errors/conflict-error.js");
+const NotFoundError = require("../errors/not-found-err.js");
+const BadRequestError = require("../errors/bad-request-err.js");
+const ForbiddenError = require("../errors/forbidden-err.js");
+const UnauthorizedError = require("../errors/unauthorized-err.js");
+const ConflictError = require("../errors/conflict-error.js");
 
 app.use((err, req, res, next) => {
   console.error(err);

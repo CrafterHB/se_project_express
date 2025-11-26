@@ -27,7 +27,11 @@ mongoose
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Vite's default port for React app
+    origin: [
+      "http://localhost:3000",
+      "https://crafterhb.crabdance.com",
+      "https://www.crafterhb.crabdance.com",
+    ],
     credentials: true, // Allow Authorization header with JWT token
   })
 );
