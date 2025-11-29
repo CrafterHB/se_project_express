@@ -160,6 +160,7 @@ const updateUser = (req, res) => {
   })
     .then((user) => {
       if (!user) return new NotFoundError("User not found.");
+      console.log(user);
       return res.status(200).send(user);
     })
     .catch((err) => {
